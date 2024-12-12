@@ -1,9 +1,30 @@
 import { fetchWeatherApi } from 'openmeteo';
 
+import {
+  HourlyWeatherData,
+  DailyWeatherData,
+  WeatherData,
+  ParsedWeatherData,
+  ParsedHourlyWeatherData,
+  ParsedDailyWeatherData
+} from '../definitions.js';
+
 const fetchWeatherForecast = async (coordinates: {
   lat: number;
   lon: number;
-}): Promise<void> => {
+}): Promise<
+  | {
+      timezone: string | null;
+      timezoneAbbreviation: string | null;
+      latitude: number;
+      longitude: number;
+      weatherData: {
+        hourly: ParsedHourlyWeatherData[];
+        daily: ParsedDailyWeatherData[];
+      };
+    }
+  | never
+> => {
   const { lat, lon } = coordinates;
 
   const params = {
@@ -101,15 +122,45 @@ const fetchWeatherForecast = async (coordinates: {
     //     weatherData.daily.temperature2mMax[i],
     //   );
     // }
-    console.log(weatherData.hourly);
-    console.log(weatherData.daily);
+    const parsedHourlyData: ParsedHourlyWeatherData[] =
+      parseWeatherData<HourlyWeatherData>(weatherData.hourly);
+    const parsedDailyData: ParsedDailyWeatherData[] =
+      parseWeatherData<DailyWeatherData>(weatherData.daily);
+    console.log(parsedHourlyData[0]);
+    console.log(parsedDailyData[0]);
     console.log(timezone);
     console.log(timezoneAbbreviation);
     console.log(latitude);
     console.log(longitude);
+
+    return {
+      timezone,
+      timezoneAbbreviation,
+      latitude,
+      longitude,
+      weatherData: { hourly: parsedHourlyData, daily: parsedDailyData }
+    };
   } catch (error) {
-    console.error(error);
+    console.log(error);
+    throw new Error('Error retrieving weather with provided coordinates.');
   }
+};
+
+const parseWeatherData = <T extends WeatherData>(
+  weatherData: T
+): ParsedWeatherData<T>[] => {
+  let parsedData: ParsedWeatherData<T>[] = [];
+  const weatherKeys = Object.keys(weatherData) as (keyof T)[];
+
+  for (let i = 0; i < weatherData.time.length; i++) {
+    let weatherObj = {} as ParsedWeatherData<T>;
+    weatherKeys.forEach((key) => {
+      weatherObj[key] = weatherData[key][i];
+    });
+    parsedData.push(weatherObj);
+  }
+
+  return parsedData;
 };
 
 export { fetchWeatherForecast };
