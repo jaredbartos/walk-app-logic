@@ -43,11 +43,35 @@ interface ParsedDailyWeatherData {
   temperature2mMax: number;
 }
 
+type LocationData = {
+  timezone: string | null;
+  timezoneAbbreviation: string | null;
+  latitude: number;
+  longitude: number;
+  name: string;
+  admin1: string;
+  country: string;
+  weatherData: {
+    hourly: ParsedHourlyWeatherData[];
+    daily: ParsedDailyWeatherData[];
+  };
+};
+
+type Coordinates = {
+  name: string;
+  admin1: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+};
+
 export {
   HourlyWeatherData,
   DailyWeatherData,
   WeatherData,
   ParsedWeatherData,
   ParsedHourlyWeatherData,
-  ParsedDailyWeatherData
+  ParsedDailyWeatherData,
+  LocationData,
+  Coordinates
 };

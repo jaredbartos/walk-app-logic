@@ -1,31 +1,19 @@
 import { fetchWeatherApi } from 'openmeteo';
-
 import {
   HourlyWeatherData,
   DailyWeatherData,
   WeatherData,
   ParsedWeatherData,
   ParsedHourlyWeatherData,
-  ParsedDailyWeatherData
+  ParsedDailyWeatherData,
+  LocationData,
+  Coordinates
 } from '../definitions.js';
 
-const fetchWeatherForecast = async (coordinates: {
-  lat: number;
-  lon: number;
-}): Promise<
-  | {
-      timezone: string | null;
-      timezoneAbbreviation: string | null;
-      latitude: number;
-      longitude: number;
-      weatherData: {
-        hourly: ParsedHourlyWeatherData[];
-        daily: ParsedDailyWeatherData[];
-      };
-    }
-  | never
-> => {
-  const { lat, lon } = coordinates;
+const fetchWeatherForecast = async (
+  coordinates: Coordinates
+): Promise<LocationData | undefined> => {
+  const { latitude: lat, longitude: lon, name, admin1, country } = coordinates;
 
   const params = {
     latitude: lat,
@@ -42,7 +30,7 @@ const fetchWeatherForecast = async (coordinates: {
       'uv_index',
       'is_day'
     ],
-    daily: ['temperature_2m_max', 'sunrise', 'sunset'],
+    daily: ['temperature_2m_max'],
     temperature_unit: 'fahrenheit',
     wind_speed_unit: 'mph',
     precipitation_unit: 'inch',
@@ -99,50 +87,24 @@ const fetchWeatherForecast = async (coordinates: {
         temperature2mMax: daily.variables(0)!.valuesArray()!
       }
     };
-
-    // `weatherData` now contains a simple structure with arrays for datetime and weather data
-    // for (let i = 0; i < weatherData.hourly.time.length; i++) {
-    //   console.log(
-    //     weatherData.hourly.time[i].toISOString(),
-    //     weatherData.hourly.temperature2m[i],
-    //     weatherData.hourly.relativeHumidity2m[i],
-    //     weatherData.hourly.apparentTemperature[i],
-    //     weatherData.hourly.precipitationProbability[i],
-    //     weatherData.hourly.cloudCover[i],
-    //     weatherData.hourly.visibility[i],
-    //     weatherData.hourly.windSpeed10m[i],
-    //     weatherData.hourly.windGusts10m[i],
-    //     weatherData.hourly.uvIndex[i],
-    //     weatherData.hourly.isDay[i]
-    //   );
-    // }
-    // for (let i = 0; i < weatherData.daily.time.length; i++) {
-    //   console.log(
-    //     weatherData.daily.time[i].toISOString(),
-    //     weatherData.daily.temperature2mMax[i],
-    //   );
-    // }
+    // Parse data to create convenient objects for analysis
     const parsedHourlyData: ParsedHourlyWeatherData[] =
       parseWeatherData<HourlyWeatherData>(weatherData.hourly);
     const parsedDailyData: ParsedDailyWeatherData[] =
       parseWeatherData<DailyWeatherData>(weatherData.daily);
-    console.log(parsedHourlyData[0]);
-    console.log(parsedDailyData[0]);
-    console.log(timezone);
-    console.log(timezoneAbbreviation);
-    console.log(latitude);
-    console.log(longitude);
 
     return {
       timezone,
       timezoneAbbreviation,
       latitude,
       longitude,
+      name,
+      admin1,
+      country,
       weatherData: { hourly: parsedHourlyData, daily: parsedDailyData }
     };
   } catch (error) {
     console.log(error);
-    throw new Error('Error retrieving weather with provided coordinates.');
   }
 };
 
@@ -152,6 +114,7 @@ const parseWeatherData = <T extends WeatherData>(
   let parsedData: ParsedWeatherData<T>[] = [];
   const weatherKeys = Object.keys(weatherData) as (keyof T)[];
 
+  // Loop through data and create objects for each time
   for (let i = 0; i < weatherData.time.length; i++) {
     let weatherObj = {} as ParsedWeatherData<T>;
     weatherKeys.forEach((key) => {
