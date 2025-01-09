@@ -1,4 +1,5 @@
 import { ParsedHourlyWeatherData } from '../definitions.js';
+import { getAbsoluteHumidity } from './absolute-humidity.js';
 
 const getBaseLog = (x: number, y: number) => {
   return Math.log(y) / Math.log(x);
@@ -61,6 +62,20 @@ const getWeatherRating = (
       : 100 - data.windGusts10m ** getBaseLog(35, 100)
   );
 
+  // Ideal absolute humidity - 8 g/m^3
+  const absoluteHumidity = getAbsoluteHumidity(
+    data.temperature2m,
+    data.relativeHumidity2m
+  );
+  // Difference from ideal absolute humidity
+  const absoluteHumidityDifference = Math.abs(absoluteHumidity - 8);
+
+  const airMoistureScore = minZero(
+    absoluteHumidity >= 8
+      ? 100 - absoluteHumidityDifference ** getBaseLog(12, 100)
+      : 100 - absoluteHumidityDifference ** getBaseLog(8, 100)
+  );
+
   /*
   ** Weighting **
   apparentTemperature: 30%
@@ -68,7 +83,8 @@ const getWeatherRating = (
   precipitationProbability: 15%
   visibility: 5%
   cloudCover: 10%
-  windSpeed10m: 10%
+  windSpeed10m: 5%
+  airMoisture: 5%
   windGusts10m: 5%
   */
 
@@ -78,7 +94,8 @@ const getWeatherRating = (
     precipitationProbabilityScore * 0.15 +
     visibilityScore * 0.05 +
     cloudCoverScore * 0.1 +
-    windSpeed10mScore * 0.1 +
+    windSpeed10mScore * 0.05 +
+    airMoistureScore * 0.05 +
     windGusts10mScore * 0.05;
 
   return weatherRating;
