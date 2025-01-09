@@ -29,7 +29,6 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
       country,
       weatherData
     } = data;
-    // console.log(weatherData.hourly);
     const possibleHours = extractPossibleTimes(weatherData);
 
     console.log('Hourly Weather:', possibleHours[0]);

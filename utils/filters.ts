@@ -19,8 +19,6 @@ const extractPossibleTimes = (weatherData: {
     (hour) => possibleDates.includes(hour.time.getUTCDate()) && hour.isDay === 1
   );
 
-  // console.log('Possible Walk Hours:', possibleHours);
-
   return possibleHours;
 };
 

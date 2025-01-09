@@ -72,10 +72,8 @@ const getWeatherRating = (
   windGusts10m: 5%
   */
 
-  console.log('Apparent Temperature Score:', apparentTemperatureScore);
-
   const weatherRating =
-    apparentTemperatureScore * 0.30 +
+    apparentTemperatureScore * 0.3 +
     uvIndexScore * 0.25 +
     precipitationProbabilityScore * 0.15 +
     visibilityScore * 0.05 +
