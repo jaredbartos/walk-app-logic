@@ -11,3 +11,5 @@ const getAbsoluteHumidity = (tempF: number, relativeHumidity: number) => {
     (273.15 + tempC)
   );
 };
+
+export { getAbsoluteHumidity };
