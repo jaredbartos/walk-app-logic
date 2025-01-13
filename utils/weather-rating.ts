@@ -72,7 +72,7 @@ const getWeatherRating = (
 
   const airMoistureScore = minZero(
     absoluteHumidity >= 8
-      ? 100 - absoluteHumidityDifference ** getBaseLog(12, 100)
+      ? 100 - absoluteHumidityDifference ** getBaseLog(10, 100)
       : 100 - absoluteHumidityDifference ** getBaseLog(8, 100)
   );
 
@@ -113,9 +113,9 @@ WEATHER RATING: ${weatherRating}`);
 
 const testWeather: ParsedHourlyWeatherData = {
   time: new Date(Date.now()),
-  temperature2m: 88,
-  relativeHumidity2m: 35,
-  apparentTemperature: 93,
+  temperature2m: 75,
+  relativeHumidity2m: 80,
+  apparentTemperature: 82,
   precipitationProbability: 15,
   cloudCover: 30,
   visibility: 70000,
