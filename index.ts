@@ -29,11 +29,11 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
       country,
       weatherData
     } = data;
-    const possibleHours = extractPossibleTimes(weatherData);
+    const daylightHours = weatherData.hourly.filter((hour) => hour.isDay === 1);
 
-    console.log('Hourly Weather:', possibleHours[0]);
+    console.log('Hourly Weather:', daylightHours[0]);
 
-    console.log('Weather Rating:', getWeatherRating(possibleHours[0]));
+    console.log('Weather Rating:', getWeatherRating(daylightHours[0]));
   }
 };
 

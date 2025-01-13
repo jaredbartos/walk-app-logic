@@ -51,15 +51,15 @@ const getWeatherRating = (
   const windSpeed10mDifference = Math.abs(data.windSpeed10m - 5);
   const windSpeed10mScore = minZero(
     data.apparentTemperature >= 80
-      ? 100 - windSpeed10mDifference ** getBaseLog(25, 100)
-      : 100 - data.windSpeed10m ** getBaseLog(25, 100)
+      ? 100 - windSpeed10mDifference ** getBaseLog(20, 100)
+      : 100 - data.windSpeed10m ** getBaseLog(20, 100)
   );
 
   const windGusts10mDifference = Math.abs(data.windGusts10m - 5);
   const windGusts10mScore = minZero(
     data.apparentTemperature >= 80
-      ? 100 - windGusts10mDifference ** getBaseLog(35, 100)
-      : 100 - data.windGusts10m ** getBaseLog(35, 100)
+      ? 100 - windGusts10mDifference ** getBaseLog(30, 100)
+      : 100 - data.windGusts10m ** getBaseLog(30, 100)
   );
 
   // Ideal absolute humidity - 8 g/m^3
@@ -89,8 +89,8 @@ const getWeatherRating = (
   */
 
   const weatherRating =
-    apparentTemperatureScore * 0.3 +
-    uvIndexScore * 0.25 +
+    apparentTemperatureScore * 0.35 +
+    uvIndexScore * 0.20 +
     precipitationProbabilityScore * 0.15 +
     visibilityScore * 0.05 +
     cloudCoverScore * 0.1 +
@@ -98,7 +98,33 @@ const getWeatherRating = (
     airMoistureScore * 0.05 +
     windGusts10mScore * 0.05;
 
+  console.log(`Temperature Score: ${apparentTemperatureScore}
+UV Index Score: ${uvIndexScore}
+Precipitation Probability Score: ${precipitationProbabilityScore}
+Visibility Score: ${visibilityScore}
+Cloud Cover Score: ${cloudCoverScore}
+Wind Speed Score: ${windSpeed10mScore}
+Wind Gusts Score: ${windGusts10mScore}
+Air Moisture Score: ${airMoistureScore}
+WEATHER RATING: ${weatherRating}`);
+
   return weatherRating;
 };
+
+const testWeather: ParsedHourlyWeatherData = {
+  time: new Date(Date.now()),
+  temperature2m: 88,
+  relativeHumidity2m: 35,
+  apparentTemperature: 93,
+  precipitationProbability: 15,
+  cloudCover: 30,
+  visibility: 70000,
+  windSpeed10m: 6,
+  windGusts10m: 10,
+  uvIndex: 2,
+  isDay: 1
+};
+
+getWeatherRating(testWeather);
 
 export { getWeatherRating };

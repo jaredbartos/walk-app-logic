@@ -35,7 +35,7 @@ interface ParsedHourlyWeatherData {
   windSpeed10m: number;
   windGusts10m: number;
   uvIndex: number;
-  isDay: number;
+  isDay: 0 | 1;
 }
 
 interface ParsedDailyWeatherData {
