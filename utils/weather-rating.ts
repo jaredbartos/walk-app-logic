@@ -88,15 +88,18 @@ const getWeatherRating = (
   windGusts10m: 5%
   */
 
-  const weatherRating =
+  let weatherRating =
     apparentTemperatureScore * 0.35 +
-    uvIndexScore * 0.20 +
+    uvIndexScore * 0.2 +
     precipitationProbabilityScore * 0.15 +
     visibilityScore * 0.05 +
     cloudCoverScore * 0.1 +
     windSpeed10mScore * 0.05 +
     airMoistureScore * 0.05 +
     windGusts10mScore * 0.05;
+
+  // Create convenient 0 to 100 scale
+  weatherRating = minZero((weatherRating / 40 - 1) * (100 / 1.5));
 
   console.log(`Temperature Score: ${apparentTemperatureScore}
 UV Index Score: ${uvIndexScore}
@@ -110,21 +113,5 @@ WEATHER RATING: ${weatherRating}`);
 
   return weatherRating;
 };
-
-const testWeather: ParsedHourlyWeatherData = {
-  time: new Date(Date.now()),
-  temperature2m: 75,
-  relativeHumidity2m: 80,
-  apparentTemperature: 82,
-  precipitationProbability: 15,
-  cloudCover: 30,
-  visibility: 70000,
-  windSpeed10m: 6,
-  windGusts10m: 10,
-  uvIndex: 2,
-  isDay: 1
-};
-
-getWeatherRating(testWeather);
 
 export { getWeatherRating };

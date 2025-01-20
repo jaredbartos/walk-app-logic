@@ -1,6 +1,5 @@
 import { fetchCoordinates } from './open-meteo/geocoding.js';
 import { fetchWeatherForecast } from './open-meteo/forecast.js';
-import { extractPossibleTimes } from './utils/filters.js';
 import { LocationData } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
@@ -33,7 +32,7 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
 
     console.log('Hourly Weather:', daylightHours[0]);
 
-    console.log('Weather Rating:', getWeatherRating(daylightHours[0]));
+    getWeatherRating(daylightHours[0]);
   }
 };
 
