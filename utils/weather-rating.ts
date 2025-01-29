@@ -1,4 +1,4 @@
-import { ParsedHourlyWeatherData } from '../definitions.js';
+import { ParsedHourlyWeatherData, WeatherRatingFunc } from '../definitions.js';
 import { getAbsoluteHumidity } from './absolute-humidity.js';
 
 const getBaseLog = (x: number, y: number) => {
@@ -14,7 +14,7 @@ const minZero = (num: number) => {
 };
 
 // Calculate weather rating
-const getWeatherRating = (
+const getWeatherRating: WeatherRatingFunc = (
   data: ParsedHourlyWeatherData,
   idealTemp = 70
 ): number => {
@@ -101,15 +101,15 @@ const getWeatherRating = (
   // Create convenient 0 to 100 scale
   weatherRating = minZero((weatherRating / 40 - 1) * (100 / 1.5));
 
-  console.log(`Temperature Score: ${apparentTemperatureScore}
-UV Index Score: ${uvIndexScore}
-Precipitation Probability Score: ${precipitationProbabilityScore}
-Visibility Score: ${visibilityScore}
-Cloud Cover Score: ${cloudCoverScore}
-Wind Speed Score: ${windSpeed10mScore}
-Wind Gusts Score: ${windGusts10mScore}
-Air Moisture Score: ${airMoistureScore}
-WEATHER RATING: ${weatherRating}`);
+  //   console.log(`Temperature Score: ${apparentTemperatureScore}
+  // UV Index Score: ${uvIndexScore}
+  // Precipitation Probability Score: ${precipitationProbabilityScore}
+  // Visibility Score: ${visibilityScore}
+  // Cloud Cover Score: ${cloudCoverScore}
+  // Wind Speed Score: ${windSpeed10mScore}
+  // Wind Gusts Score: ${windGusts10mScore}
+  // Air Moisture Score: ${airMoistureScore}
+  // WEATHER RATING: ${weatherRating}`);
 
   return weatherRating;
 };

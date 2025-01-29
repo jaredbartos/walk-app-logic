@@ -38,6 +38,12 @@ interface ParsedHourlyWeatherData {
   isDay: 0 | 1;
 }
 
+interface HourClass extends ParsedHourlyWeatherData {
+  idealTemp: number;
+  calcRating: WeatherRatingFunc;
+  weatherRating: number;
+}
+
 interface ParsedDailyWeatherData {
   time: Date;
   temperature2mMax: number;
@@ -65,6 +71,11 @@ type Coordinates = {
   longitude: number;
 };
 
+type WeatherRatingFunc = (
+  data: ParsedHourlyWeatherData,
+  idealTemp?: number
+) => number;
+
 export {
   HourlyWeatherData,
   DailyWeatherData,
@@ -73,5 +84,7 @@ export {
   ParsedHourlyWeatherData,
   ParsedDailyWeatherData,
   LocationData,
-  Coordinates
+  Coordinates,
+  WeatherRatingFunc,
+  HourClass
 };
