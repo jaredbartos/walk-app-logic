@@ -1,7 +1,8 @@
 import {
   ParsedDailyWeatherData,
   ParsedHourlyWeatherData,
-  HourClass
+  HourClass,
+  DayClass
 } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
@@ -55,4 +56,37 @@ class Hour implements HourClass {
   weatherRating = this.calcRating();
 }
 
-export { Hour };
+class Day implements DayClass {
+  date;
+  month;
+  year;
+  dailyWeather;
+  hourlyWeather: HourClass[] = [];
+
+  constructor(
+    date: number,
+    month: number,
+    year: number,
+    dailyWeather: ParsedDailyWeatherData
+  ) {
+    this.date = date;
+    this.month = month;
+    this.year = year;
+    this.dailyWeather = dailyWeather;
+  }
+
+  addHourlyWeather = (hourlyWeatherData: ParsedHourlyWeatherData[]) => {
+    const hours = hourlyWeatherData.filter(
+      (hour) =>
+        hour.time.getUTCDate() === this.date &&
+        hour.time.getUTCMonth() === this.month &&
+        hour.time.getUTCFullYear() === this.year
+    );
+
+    hours.forEach((hour) => {
+      this.hourlyWeather.push(new Hour(hour));
+    });
+  };
+}
+
+export { Hour, Day };

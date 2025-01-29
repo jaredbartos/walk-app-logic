@@ -49,6 +49,14 @@ interface ParsedDailyWeatherData {
   temperature2mMax: number;
 }
 
+interface DayClass {
+  date: number;
+  month: number;
+  year: number;
+  dailyWeather: ParsedDailyWeatherData;
+  hourlyWeather: HourClass[];
+}
+
 type LocationData = {
   timezone: string | null;
   timezoneAbbreviation: string | null;
@@ -86,5 +94,6 @@ export {
   LocationData,
   Coordinates,
   WeatherRatingFunc,
-  HourClass
+  HourClass,
+  DayClass
 };
