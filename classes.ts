@@ -63,15 +63,10 @@ class Day implements DayClass {
   dailyWeather;
   hourlyWeather: HourClass[] = [];
 
-  constructor(
-    date: number,
-    month: number,
-    year: number,
-    dailyWeather: ParsedDailyWeatherData
-  ) {
-    this.date = date;
-    this.month = month;
-    this.year = year;
+  constructor(dailyWeather: ParsedDailyWeatherData) {
+    this.date = dailyWeather.time.getUTCDate();
+    this.month = dailyWeather.time.getUTCMonth();
+    this.year = dailyWeather.time.getUTCFullYear();
     this.dailyWeather = dailyWeather;
   }
 

@@ -40,7 +40,7 @@ interface ParsedHourlyWeatherData {
 
 interface HourClass extends ParsedHourlyWeatherData {
   idealTemp: number;
-  calcRating: WeatherRatingFunc;
+  calcRating: () => number;
   weatherRating: number;
 }
 
