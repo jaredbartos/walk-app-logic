@@ -1,24 +1,22 @@
 import {
   ParsedDailyWeatherData,
-  ParsedHourlyWeatherData,
-  HourClass,
-  DayClass
+  ParsedHourlyWeatherData
 } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
-class Hour implements HourClass {
-  time;
-  temperature2m;
-  relativeHumidity2m;
-  apparentTemperature;
-  precipitationProbability;
-  cloudCover;
-  visibility;
-  windSpeed10m;
-  windGusts10m;
-  uvIndex;
-  isDay;
-  idealTemp;
+class Hour {
+  readonly time;
+  readonly temperature2m;
+  readonly relativeHumidity2m;
+  readonly apparentTemperature;
+  readonly precipitationProbability;
+  readonly cloudCover;
+  readonly visibility;
+  readonly windSpeed10m;
+  readonly windGusts10m;
+  readonly uvIndex;
+  readonly isDay;
+  readonly idealTemp;
 
   constructor(weatherData: ParsedHourlyWeatherData, idealTemp = 70) {
     this.time = weatherData.time;
@@ -35,8 +33,12 @@ class Hour implements HourClass {
     this.idealTemp = idealTemp;
   }
 
-  calcRating = () =>
-    getWeatherRating(
+  get weatherRating() {
+    return this.calcRating();
+  }
+
+  calcRating() {
+    return getWeatherRating(
       {
         time: this.time,
         temperature2m: this.temperature2m,
@@ -52,16 +54,15 @@ class Hour implements HourClass {
       },
       this.idealTemp
     );
-
-  weatherRating = this.calcRating();
+  }
 }
 
-class Day implements DayClass {
-  date;
-  month;
-  year;
-  dailyWeather;
-  hourlyWeather: HourClass[] = [];
+class Day {
+  readonly date;
+  readonly month;
+  readonly year;
+  readonly dailyWeather;
+  readonly hourlyWeather: Hour[] = [];
 
   constructor(dailyWeather: ParsedDailyWeatherData) {
     this.date = dailyWeather.time.getUTCDate();
@@ -70,7 +71,7 @@ class Day implements DayClass {
     this.dailyWeather = dailyWeather;
   }
 
-  addHourlyWeather = (hourlyWeatherData: ParsedHourlyWeatherData[]) => {
+  addHourlyWeather(hourlyWeatherData: ParsedHourlyWeatherData[]) {
     const hours = hourlyWeatherData.filter(
       (hour) =>
         hour.time.getUTCDate() === this.date &&
@@ -81,7 +82,7 @@ class Day implements DayClass {
     hours.forEach((hour) => {
       this.hourlyWeather.push(new Hour(hour));
     });
-  };
+  }
 }
 
 export { Hour, Day };

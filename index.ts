@@ -2,6 +2,7 @@ import { fetchCoordinates } from './open-meteo/geocoding.js';
 import { fetchWeatherForecast } from './open-meteo/forecast.js';
 import { LocationData } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
+import { Hour, Day } from './classes.js';
 
 const getWeather = async (
   location: string
@@ -28,11 +29,13 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
       country,
       weatherData
     } = data;
-    const daylightHours = weatherData.hourly.filter((hour) => hour.isDay === 1);
 
-    console.log('Hourly Weather:', daylightHours[0]);
-
-    getWeatherRating(daylightHours[0]);
+    let daysArray: Day[] = [];
+    weatherData.daily.forEach((day) => {
+      const newDay = new Day(day);
+      newDay.addHourlyWeather(weatherData.hourly);
+      daysArray.push(newDay);
+    });
   }
 };
 
