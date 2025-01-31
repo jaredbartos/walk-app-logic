@@ -1,10 +1,11 @@
 import {
   ParsedDailyWeatherData,
-  ParsedHourlyWeatherData
+  ParsedHourlyWeatherData,
+  HourClass
 } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
-class Hour {
+class Hour implements HourClass {
   readonly time;
   readonly temperature2m;
   readonly relativeHumidity2m;

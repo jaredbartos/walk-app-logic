@@ -1,8 +1,7 @@
 import { fetchCoordinates } from './open-meteo/geocoding.js';
 import { fetchWeatherForecast } from './open-meteo/forecast.js';
 import { LocationData } from './definitions.js';
-import { getWeatherRating } from './utils/weather-rating.js';
-import { Hour, Day } from './classes.js';
+import { Day } from './classes.js';
 
 const getWeather = async (
   location: string
@@ -30,7 +29,7 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
       weatherData
     } = data;
 
-    let daysArray: Day[] = [];
+    const daysArray: Day[] = [];
     weatherData.daily.forEach((day) => {
       const newDay = new Day(day);
       newDay.addHourlyWeather(weatherData.hourly);
