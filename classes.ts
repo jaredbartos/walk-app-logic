@@ -38,6 +38,10 @@ class Hour implements HourClass {
     return this.calcRating();
   }
 
+  get flags() {
+    return this.assignFlags();
+  }
+
   calcRating() {
     return getWeatherRating(
       {
@@ -55,6 +59,37 @@ class Hour implements HourClass {
       },
       this.idealTemp
     );
+  }
+
+  assignFlags() {
+    const flags: string[] = [];
+
+    if (this.temperature2m < 30) {
+      flags.push('Low Temperature');
+    }
+    if (this.temperature2m > 80) {
+      flags.push('High Temperature');
+    }
+    if (this.temperature2m < 30 && this.apparentTemperature < 0) {
+      flags.push('Wind Chill');
+    }
+    if (this.temperature2m > 70 && this.apparentTemperature > 85) {
+      flags.push('Heat Index');
+    }
+    if (this.visibility < 5000) {
+      flags.push('Low Visibility');
+    }
+    if (this.windSpeed10m > 20) {
+      flags.push('High Wind Speed');
+    }
+    if (this.windGusts10m > 30) {
+      flags.push('High Wind Gusts');
+    }
+    if (this.uvIndex >= 3) {
+      flags.push('UV Index - Use Sunscreen');
+    }
+
+    return flags;
   }
 }
 

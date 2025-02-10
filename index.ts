@@ -35,6 +35,14 @@ const getBestWalkTimes = async (location: string): Promise<void> => {
       newDay.addHourlyWeather(weatherData.hourly);
       daysArray.push(newDay);
     });
+
+    daysArray[0].hourlyWeather.forEach(
+      (hour) =>
+        hour.isDay &&
+        console.log(`${hour.time.getUTCHours()} - ${hour.weatherRating}`)
+    );
+
+    console.log(daysArray[0].hourlyWeather[13].flags);
   }
 };
 

@@ -40,8 +40,10 @@ interface ParsedHourlyWeatherData {
 
 interface HourClass extends ParsedHourlyWeatherData {
   idealTemp: number;
-  calcRating: () => number;
+  flags: string[];
   weatherRating: number;
+  calcRating: () => number;
+  assignFlags: () => string[];
 }
 
 interface ParsedDailyWeatherData {

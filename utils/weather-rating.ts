@@ -18,7 +18,8 @@ const getWeatherRating: WeatherRatingFunc = (
   data: ParsedHourlyWeatherData,
   idealTemp = 70
 ): number => {
-  const uvIndexScore = Math.abs(data.uvIndex * 10 - 100);
+  const uvIndexScore =
+    data.uvIndex >= 10 ? 0 : Math.abs(data.uvIndex * 10 - 100);
   const precipitationProbabilityScore = Math.abs(
     data.precipitationProbability - 100
   );
@@ -100,16 +101,6 @@ const getWeatherRating: WeatherRatingFunc = (
 
   // Create convenient 0 to 100 scale
   weatherRating = minZero((weatherRating / 40 - 1) * (100 / 1.5));
-
-  //   console.log(`Temperature Score: ${apparentTemperatureScore}
-  // UV Index Score: ${uvIndexScore}
-  // Precipitation Probability Score: ${precipitationProbabilityScore}
-  // Visibility Score: ${visibilityScore}
-  // Cloud Cover Score: ${cloudCoverScore}
-  // Wind Speed Score: ${windSpeed10mScore}
-  // Wind Gusts Score: ${windGusts10mScore}
-  // Air Moisture Score: ${airMoistureScore}
-  // WEATHER RATING: ${weatherRating}`);
 
   return weatherRating;
 };
