@@ -35,14 +35,6 @@ class Hour implements HourClass {
   }
 
   get weatherRating() {
-    return this.calcRating();
-  }
-
-  get flags() {
-    return this.assignFlags();
-  }
-
-  calcRating() {
     return getWeatherRating(
       {
         time: this.time,
@@ -61,7 +53,7 @@ class Hour implements HourClass {
     );
   }
 
-  assignFlags() {
+  get flags() {
     const flags: string[] = [];
 
     if (this.temperature2m < 30) {
@@ -99,12 +91,14 @@ class Day {
   readonly year;
   readonly dailyWeather;
   readonly hourlyWeather: Hour[] = [];
+  readonly idealTemp;
 
-  constructor(dailyWeather: ParsedDailyWeatherData) {
+  constructor(dailyWeather: ParsedDailyWeatherData, idealTemp = 70) {
     this.date = dailyWeather.time.getUTCDate();
     this.month = dailyWeather.time.getUTCMonth();
     this.year = dailyWeather.time.getUTCFullYear();
     this.dailyWeather = dailyWeather;
+    this.idealTemp = idealTemp;
   }
 
   addHourlyWeather(hourlyWeatherData: ParsedHourlyWeatherData[]) {
@@ -116,7 +110,7 @@ class Day {
     );
 
     hours.forEach((hour) => {
-      this.hourlyWeather.push(new Hour(hour));
+      this.hourlyWeather.push(new Hour(hour, this.idealTemp));
     });
   }
 }

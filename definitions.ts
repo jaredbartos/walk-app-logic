@@ -42,8 +42,6 @@ interface HourClass extends ParsedHourlyWeatherData {
   idealTemp: number;
   flags: string[];
   weatherRating: number;
-  calcRating: () => number;
-  assignFlags: () => string[];
 }
 
 interface ParsedDailyWeatherData {
