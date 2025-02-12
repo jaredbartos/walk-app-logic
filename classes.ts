@@ -78,7 +78,7 @@ class Hour implements HourClass {
       flags.push('High Wind Gusts');
     }
     if (this.uvIndex >= 3) {
-      flags.push('UV Index - Use Sunscreen');
+      flags.push('UV Index');
     }
 
     return flags;
