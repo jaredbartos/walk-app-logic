@@ -1,12 +1,14 @@
 import {
   ParsedDailyWeatherData,
-  ParsedHourlyWeatherData,
+  ParsedMinutelyWeatherData,
   HourClass
 } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
 class Hour implements HourClass {
   readonly time;
+  readonly weatherCode;
+  readonly windDirection10m;
   readonly temperature2m;
   readonly relativeHumidity2m;
   readonly apparentTemperature;
@@ -19,8 +21,10 @@ class Hour implements HourClass {
   readonly isDay;
   readonly idealTemp;
 
-  constructor(weatherData: ParsedHourlyWeatherData, idealTemp = 70) {
+  constructor(weatherData: ParsedMinutelyWeatherData, idealTemp = 70) {
     this.time = weatherData.time;
+    this.weatherCode = weatherData.weatherCode;
+    this.windDirection10m = weatherData.windDirection10m;
     this.temperature2m = weatherData.temperature2m;
     this.apparentTemperature = weatherData.apparentTemperature;
     this.relativeHumidity2m = weatherData.relativeHumidity2m;
@@ -38,6 +42,8 @@ class Hour implements HourClass {
     return getWeatherRating(
       {
         time: this.time,
+        weatherCode: this.weatherCode,
+        windDirection10m: this.windDirection10m,
         temperature2m: this.temperature2m,
         relativeHumidity2m: this.relativeHumidity2m,
         apparentTemperature: this.apparentTemperature,
@@ -101,7 +107,7 @@ class Day {
     this.idealTemp = idealTemp;
   }
 
-  addHourlyWeather(hourlyWeatherData: ParsedHourlyWeatherData[]) {
+  addHourlyWeather(hourlyWeatherData: ParsedMinutelyWeatherData[]) {
     const hours = hourlyWeatherData.filter(
       (hour) =>
         hour.time.getUTCDate() === this.date &&

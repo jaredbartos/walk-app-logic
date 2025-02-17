@@ -3,7 +3,8 @@ interface WeatherData {
   [key: string]: any;
 }
 
-interface HourlyWeatherData extends WeatherData {
+interface MinutelyWeatherData extends WeatherData {
+  weatherCode: Float32Array;
   temperature2m: Float32Array;
   relativeHumidity2m: Float32Array;
   apparentTemperature: Float32Array;
@@ -11,6 +12,7 @@ interface HourlyWeatherData extends WeatherData {
   cloudCover: Float32Array;
   visibility: Float32Array;
   windSpeed10m: Float32Array;
+  windDirection10m: Float32Array;
   windGusts10m: Float32Array;
   uvIndex: Float32Array;
   isDay: Float32Array;
@@ -24,8 +26,9 @@ type ParsedWeatherData<T extends WeatherData> = {
   [K in keyof T]: T[K] extends Array<infer U> ? U : never;
 };
 
-interface ParsedHourlyWeatherData {
+interface ParsedMinutelyWeatherData {
   time: Date;
+  weatherCode: number;
   temperature2m: number;
   relativeHumidity2m: number;
   apparentTemperature: number;
@@ -33,12 +36,13 @@ interface ParsedHourlyWeatherData {
   cloudCover: number;
   visibility: number;
   windSpeed10m: number;
+  windDirection10m: number;
   windGusts10m: number;
   uvIndex: number;
   isDay: 0 | 1;
 }
 
-interface HourClass extends ParsedHourlyWeatherData {
+interface HourClass extends ParsedMinutelyWeatherData {
   idealTemp: number;
   flags: string[];
   weatherRating: number;
@@ -58,7 +62,7 @@ type LocationData = {
   admin1: string;
   country: string;
   weatherData: {
-    hourly: ParsedHourlyWeatherData[];
+    hourly: ParsedMinutelyWeatherData[];
     daily: ParsedDailyWeatherData[];
   };
 };
@@ -72,16 +76,16 @@ type Coordinates = {
 };
 
 type WeatherRatingFunc = (
-  data: ParsedHourlyWeatherData,
+  data: ParsedMinutelyWeatherData,
   idealTemp?: number
 ) => number;
 
 export {
-  HourlyWeatherData,
+  MinutelyWeatherData,
   DailyWeatherData,
   WeatherData,
   ParsedWeatherData,
-  ParsedHourlyWeatherData,
+  ParsedMinutelyWeatherData,
   ParsedDailyWeatherData,
   LocationData,
   Coordinates,

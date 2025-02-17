@@ -1,4 +1,7 @@
-import { ParsedHourlyWeatherData, WeatherRatingFunc } from '../definitions.js';
+import {
+  ParsedMinutelyWeatherData,
+  WeatherRatingFunc
+} from '../definitions.js';
 import { getAbsoluteHumidity } from './absolute-humidity.js';
 
 const getBaseLog = (x: number, y: number) => {
@@ -15,7 +18,7 @@ const minZero = (num: number) => {
 
 // Calculate weather rating
 const getWeatherRating: WeatherRatingFunc = (
-  data: ParsedHourlyWeatherData,
+  data: ParsedMinutelyWeatherData,
   idealTemp = 70
 ): number => {
   const uvIndexScore =
