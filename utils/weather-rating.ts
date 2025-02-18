@@ -82,8 +82,8 @@ const getWeatherRating: WeatherRatingFunc = (
 
   /*
   ** Weighting **
-  apparentTemperature: 30%
-  uvIndex: 25%
+  apparentTemperature: 35%
+  uvIndex: 20%
   precipitationProbability: 15%
   visibility: 5%
   cloudCover: 10%

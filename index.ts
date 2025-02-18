@@ -1,14 +1,14 @@
-import { fetchCoordinates } from './open-meteo/geocoding.js';
+import { fetchLocation } from './open-meteo/geocoding.js';
 import { fetchForecast } from './open-meteo/forecast.js';
-import { LocationData } from './definitions.js';
+import { LocationPlusWeather } from './definitions.js';
 import { Day } from './classes.js';
 
 const fetchWeather = async (
   location: string
-): Promise<LocationData | undefined> => {
+): Promise<LocationPlusWeather | undefined> => {
   try {
-    const coordinates = await fetchCoordinates(location);
-    if (coordinates) return await fetchForecast(coordinates);
+    const data = await fetchLocation(location);
+    if (data) return await fetchForecast(data[0]);
   } catch (error) {
     console.log(error);
   }
@@ -19,29 +19,27 @@ const arrangeWeatherByDay = async (location: string): Promise<void> => {
     const data = await fetchWeather(location);
 
     if (data) {
-      const {
-        timezone,
-        timezoneAbbreviation,
-        latitude,
-        longitude,
-        name,
-        admin1,
-        country,
-        weatherData
-      } = data;
+      const { weatherData } = data;
 
       const daysArray: Day[] = [];
       weatherData.daily.forEach((day) => {
         const newDay = new Day(day);
-        newDay.addHourlyWeather(weatherData.hourly);
+        newDay.addMinutelyWeather(weatherData);
         daysArray.push(newDay);
       });
 
-      // daysArray[0].hourlyWeather.forEach(
-      //   (hour) =>
-      //     hour.isDay &&
-      //     console.log(`${hour.time.getUTCHours()} - ${hour.weatherRating}`)
+      // daysArray[0].minutely15Weather.forEach(
+      //   (date) =>
+      //     date.isDay &&
+      //     console.log(
+      //       `${date.time.getUTCHours().toString().padStart(2, '0')}:${date.time
+      //         .getUTCMinutes()
+      //         .toString()
+      //         .padStart(2, '0')} - ${date.weatherRating}`
+      //     )
       // );
+
+      console.log(daysArray[0].minutely15Weather[32].flags);
     }
   } catch (error) {
     console.log(error);

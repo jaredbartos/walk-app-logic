@@ -1,11 +1,12 @@
 import {
   ParsedDailyWeatherData,
   ParsedMinutelyWeatherData,
-  HourClass
+  MinutelyWeatherClass,
+  ParsedTotalForecastData
 } from './definitions.js';
 import { getWeatherRating } from './utils/weather-rating.js';
 
-class Hour implements HourClass {
+class MinutelyWeather implements MinutelyWeatherClass {
   readonly time;
   readonly weatherCode;
   readonly windDirection10m;
@@ -20,6 +21,7 @@ class Hour implements HourClass {
   readonly uvIndex;
   readonly isDay;
   readonly idealTemp;
+  readonly usAqi;
 
   constructor(weatherData: ParsedMinutelyWeatherData, idealTemp = 70) {
     this.time = weatherData.time;
@@ -36,6 +38,7 @@ class Hour implements HourClass {
     this.uvIndex = weatherData.uvIndex;
     this.isDay = weatherData.isDay;
     this.idealTemp = idealTemp;
+    this.usAqi = weatherData.usAqi;
   }
 
   get weatherRating() {
@@ -86,6 +89,9 @@ class Hour implements HourClass {
     if (this.uvIndex >= 3) {
       flags.push('UV Index');
     }
+    if (this.usAqi !== undefined && this.usAqi > 100) {
+      flags.push('Air Quality Index');
+    }
 
     return flags;
   }
@@ -96,7 +102,8 @@ class Day {
   readonly month;
   readonly year;
   readonly dailyWeather;
-  readonly hourlyWeather: Hour[] = [];
+  readonly hourlyWeather: MinutelyWeather[] = [];
+  readonly minutely15Weather: MinutelyWeather[] = [];
   readonly idealTemp;
 
   constructor(dailyWeather: ParsedDailyWeatherData, idealTemp = 70) {
@@ -107,18 +114,30 @@ class Day {
     this.idealTemp = idealTemp;
   }
 
-  addHourlyWeather(hourlyWeatherData: ParsedMinutelyWeatherData[]) {
-    const hours = hourlyWeatherData.filter(
-      (hour) =>
-        hour.time.getUTCDate() === this.date &&
-        hour.time.getUTCMonth() === this.month &&
-        hour.time.getUTCFullYear() === this.year
-    );
+  addMinutelyWeather(weatherData: ParsedTotalForecastData) {
+    const filterAndAdd = (
+      weatherData: ParsedTotalForecastData,
+      frequency: 'hourly' | 'minutely15'
+    ) => {
+      const dates = weatherData[frequency].filter(
+        (x) =>
+          x.time.getUTCDate() === this.date &&
+          x.time.getUTCMonth() === this.month &&
+          x.time.getUTCFullYear() === this.year
+      );
 
-    hours.forEach((hour) => {
-      this.hourlyWeather.push(new Hour(hour, this.idealTemp));
-    });
+      dates.forEach((date) =>
+        frequency === 'hourly'
+          ? this.hourlyWeather.push(new MinutelyWeather(date, this.idealTemp))
+          : this.minutely15Weather.push(
+              new MinutelyWeather(date, this.idealTemp)
+            )
+      );
+    };
+
+    filterAndAdd(weatherData, 'hourly');
+    filterAndAdd(weatherData, 'minutely15');
   }
 }
 
-export { Hour, Day };
+export { MinutelyWeather, Day };

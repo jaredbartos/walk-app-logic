@@ -1,10 +1,10 @@
 interface WeatherData {
   time: Date[];
+  weatherCode: Float32Array;
   [key: string]: any;
 }
 
 interface MinutelyWeatherData extends WeatherData {
-  weatherCode: Float32Array;
   temperature2m: Float32Array;
   relativeHumidity2m: Float32Array;
   apparentTemperature: Float32Array;
@@ -20,6 +20,16 @@ interface MinutelyWeatherData extends WeatherData {
 
 interface DailyWeatherData extends WeatherData {
   temperature2mMax: Float32Array;
+  temperature2mMin: Float32Array;
+  apparentTemperatureMax: Float32Array;
+  apparentTemperatureMin: Float32Array;
+  sunrise: Date[];
+  sunset: Date[];
+  uvIndexMax: Float32Array;
+  precipitationProbabilityMax: Float32Array;
+  windSpeed10mMax: Float32Array;
+  windGusts10mMax: Float32Array;
+  windDirection10mDominant: Float32Array;
 }
 
 type ParsedWeatherData<T extends WeatherData> = {
@@ -39,10 +49,11 @@ interface ParsedMinutelyWeatherData {
   windDirection10m: number;
   windGusts10m: number;
   uvIndex: number;
-  isDay: 0 | 1;
+  isDay: number;
+  usAqi?: number;
 }
 
-interface HourClass extends ParsedMinutelyWeatherData {
+interface MinutelyWeatherClass extends ParsedMinutelyWeatherData {
   idealTemp: number;
   flags: string[];
   weatherRating: number;
@@ -50,30 +61,54 @@ interface HourClass extends ParsedMinutelyWeatherData {
 
 interface ParsedDailyWeatherData {
   time: Date;
+  weatherCode: number;
   temperature2mMax: number;
+  temperature2mMin: number;
+  apparentTemperatureMax: number;
+  apparentTemperatureMin: number;
+  sunrise: Date;
+  sunset: Date;
+  uvIndexMax: number;
+  precipitationProbabilityMax: number;
+  windSpeed10mMax: number;
+  windGusts10mMax: number;
+  windDirection10mDominant: number;
 }
 
-type LocationData = {
-  timezone: string | null;
-  timezoneAbbreviation: string | null;
-  latitude: number;
-  longitude: number;
-  name: string;
-  admin1: string;
-  country: string;
-  weatherData: {
-    hourly: ParsedMinutelyWeatherData[];
-    daily: ParsedDailyWeatherData[];
-  };
+type ParsedTotalForecastData = {
+  current: ParsedMinutelyWeatherData;
+  minutely15: ParsedMinutelyWeatherData[];
+  hourly: ParsedMinutelyWeatherData[];
+  daily: ParsedDailyWeatherData[];
 };
 
-type Coordinates = {
+interface Location {
+  id: number;
   name: string;
-  admin1: string;
-  country: string;
   latitude: number;
   longitude: number;
-};
+  elevation: number;
+  feature_code: string;
+  country_code: string;
+  admin1_id: number;
+  admin2_id: number;
+  admin3_id: number;
+  admin4_id?: number;
+  timezone: string;
+  population: number;
+  postcodes: string[];
+  country_id: number;
+  country: string;
+  admin1: string;
+  admin2: string;
+  admin3: string;
+  admin4?: string;
+}
+
+interface LocationPlusWeather extends Location {
+  timezoneAbbreviation: string | null;
+  weatherData: ParsedTotalForecastData;
+}
 
 type WeatherRatingFunc = (
   data: ParsedMinutelyWeatherData,
@@ -87,8 +122,9 @@ export {
   ParsedWeatherData,
   ParsedMinutelyWeatherData,
   ParsedDailyWeatherData,
-  LocationData,
-  Coordinates,
+  LocationPlusWeather,
+  ParsedTotalForecastData,
+  Location,
   WeatherRatingFunc,
-  HourClass
+  MinutelyWeatherClass
 };

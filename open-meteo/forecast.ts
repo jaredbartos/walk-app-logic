@@ -7,18 +7,18 @@ import {
   ParsedWeatherData,
   ParsedMinutelyWeatherData,
   ParsedDailyWeatherData,
-  LocationData,
-  Coordinates
+  LocationPlusWeather,
+  Location
 } from '../definitions.js';
 
 const fetchForecast = async (
-  coordinates: Coordinates
-): Promise<LocationData | undefined> => {
-  const { latitude: lat, longitude: lon, name, admin1, country } = coordinates;
+  location: Location
+): Promise<LocationPlusWeather | undefined> => {
+  const { latitude, longitude } = location;
 
   const params = {
-    latitude: lat,
-    longitude: lon,
+    latitude,
+    longitude,
     minutely_15: [
       'weather_code',
       'temperature_2m',
@@ -111,10 +111,10 @@ const fetchForecast = async (
 
     // Attributes for timezone and location
     const utcOffsetSeconds = response.utcOffsetSeconds();
-    const timezone = response.timezone();
+    // const timezone = response.timezone();
     const timezoneAbbreviation = response.timezoneAbbreviation();
-    const latitude = response.latitude();
-    const longitude = response.longitude();
+    // const latitude = response.latitude();
+    // const longitude = response.longitude();
 
     const current = response.current()!;
     const minutely15 = response.minutely15()!;
@@ -200,26 +200,124 @@ const fetchForecast = async (
         windDirection10mDominant: daily.variables(11)!.valuesArray()!
       }
     };
-    console.log(weatherData.current.precipitationProbability);
     // Parse data to create convenient objects for analysis
-    const parsedHourlyData: ParsedMinutelyWeatherData[] =
+    let parsedMinutely15Data: ParsedMinutelyWeatherData[] =
+      parseWeatherData<MinutelyWeatherData>(weatherData.minutely15);
+    let parsedHourlyData: ParsedMinutelyWeatherData[] =
       parseWeatherData<MinutelyWeatherData>(weatherData.hourly);
     const parsedDailyData: ParsedDailyWeatherData[] =
       parseWeatherData<DailyWeatherData>(weatherData.daily);
 
+    // Fetch air quality data to merge with forecast
+    const {
+      current: { usAqi: currentUsAqi },
+      hourly: hourlyAirQualityData
+    } = await fetchAirQuality(latitude, longitude);
+
+    // Merge air quality data
+    parsedMinutely15Data = mergeAirQualityData(
+      parsedMinutely15Data,
+      hourlyAirQualityData
+    );
+    parsedHourlyData = mergeAirQualityData(
+      parsedHourlyData,
+      hourlyAirQualityData
+    );
+
     return {
-      timezone,
+      ...location,
       timezoneAbbreviation,
-      latitude,
-      longitude,
-      name,
-      admin1,
-      country,
-      weatherData: { hourly: parsedHourlyData, daily: parsedDailyData }
+      weatherData: {
+        current: { ...weatherData.current, usAqi: currentUsAqi },
+        minutely15: parsedMinutely15Data,
+        hourly: parsedHourlyData,
+        daily: parsedDailyData
+      }
     };
   } catch (error) {
     console.log(error);
   }
+};
+
+const fetchAirQuality = async (latitude: number, longitude: number) => {
+  const params = {
+    latitude,
+    longitude,
+    current: 'us_aqi',
+    hourly: 'us_aqi',
+    timezone: 'auto',
+    forecast_days: 7
+  };
+  const url = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+  const responses = await fetchWeatherApi(url, params);
+
+  // Helper function to form time ranges
+  const range = (start: number, stop: number, step: number) =>
+    Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+  // Process first location. Add a for-loop for multiple locations or weather models
+  const response = responses[0];
+
+  // Attributes for timezone and location
+  const utcOffsetSeconds = response.utcOffsetSeconds();
+  // const timezone = response.timezone();
+  // const timezoneAbbreviation = response.timezoneAbbreviation();
+  // const latitude = response.latitude();
+  // const longitude = response.longitude();
+
+  const current = response.current()!;
+  const hourly = response.hourly()!;
+
+  // Note: The order of weather variables in the URL query and the indices below need to match!
+  const weatherData = {
+    current: {
+      time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
+      usAqi: current.variables(0)!.value()
+    },
+    hourly: {
+      time: range(
+        Number(hourly.time()),
+        Number(hourly.timeEnd()),
+        hourly.interval()
+      ).map((t) => new Date((t + utcOffsetSeconds) * 1000)),
+      usAqi: hourly.variables(0)!.valuesArray()!
+    }
+  };
+
+  // Parse hourly data into time-separated objects for easier use
+  const parsedHourlyAirData: { time: Date; usAqi: number }[] = [];
+  for (let i = 0; i < weatherData.hourly.time.length; i++) {
+    parsedHourlyAirData.push({
+      time: weatherData.hourly.time[i],
+      usAqi: weatherData.hourly.usAqi[i]
+    });
+  }
+
+  return { current: weatherData.current, hourly: parsedHourlyAirData };
+};
+
+// Function to merge air quality data with existing hourly and 15 minute forecasts
+const mergeAirQualityData = (
+  weatherData: ParsedMinutelyWeatherData[],
+  airQualityData: { time: Date; usAqi: number }[]
+) => {
+  const mapFn = (x: ParsedMinutelyWeatherData) => {
+    for (let i = 0; i < airQualityData.length; i++) {
+      if (
+        x.time.getUTCDate() === airQualityData[i].time.getUTCDate() &&
+        x.time.getUTCHours() === airQualityData[i].time.getUTCHours()
+      ) {
+        return {
+          ...x,
+          usAqi: airQualityData[i].usAqi
+        };
+      }
+    }
+
+    return x;
+  };
+
+  return weatherData.map(mapFn);
 };
 
 const parseWeatherData = <T extends WeatherData>(
