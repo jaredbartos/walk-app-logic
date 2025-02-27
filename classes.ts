@@ -115,28 +115,27 @@ class Day {
   }
 
   addMinutelyWeather(weatherData: ParsedTotalForecastData) {
-    const filterAndAdd = (
-      weatherData: ParsedTotalForecastData,
-      frequency: 'hourly' | 'minutely15'
-    ) => {
-      const dates = weatherData[frequency].filter(
-        (x) =>
-          x.time.getUTCDate() === this.date &&
-          x.time.getUTCMonth() === this.month &&
-          x.time.getUTCFullYear() === this.year
-      );
+    // Create array with possible frequencies of forecasts
+    const keys: ['hourly', 'minutely15'] = ['hourly', 'minutely15'];
 
-      dates.forEach((date) =>
-        frequency === 'hourly'
-          ? this.hourlyWeather.push(new MinutelyWeather(date, this.idealTemp))
-          : this.minutely15Weather.push(
-              new MinutelyWeather(date, this.idealTemp)
-            )
-      );
-    };
-
-    filterAndAdd(weatherData, 'hourly');
-    filterAndAdd(weatherData, 'minutely15');
+    keys.forEach((key) => {
+      // Get weather data that matches the day
+      weatherData[key]
+        .filter(
+          (a) =>
+            a.time.getUTCDate() === this.date &&
+            a.time.getUTCMonth() === this.month &&
+            a.time.getUTCFullYear() === this.year
+        )
+        // Create new minutely class instances and push to appropriate properties
+        .forEach((b) =>
+          key === 'hourly'
+            ? this.hourlyWeather.push(new MinutelyWeather(b, this.idealTemp))
+            : this.minutely15Weather.push(
+                new MinutelyWeather(b, this.idealTemp)
+              )
+        );
+    });
   }
 }
 

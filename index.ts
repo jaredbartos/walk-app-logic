@@ -28,18 +28,16 @@ const arrangeWeatherByDay = async (location: string): Promise<void> => {
         daysArray.push(newDay);
       });
 
-      // daysArray[0].minutely15Weather.forEach(
-      //   (date) =>
-      //     date.isDay &&
-      //     console.log(
-      //       `${date.time.getUTCHours().toString().padStart(2, '0')}:${date.time
-      //         .getUTCMinutes()
-      //         .toString()
-      //         .padStart(2, '0')} - ${date.weatherRating}`
-      //     )
-      // );
-
-      console.log(daysArray[0].minutely15Weather[32].flags);
+      daysArray[1].hourlyWeather.forEach(
+        (date) =>
+          date.isDay &&
+          console.log(
+            `${date.time.getUTCHours().toString().padStart(2, '0')}:${date.time
+              .getUTCMinutes()
+              .toString()
+              .padStart(2, '0')} - ${date.weatherRating}`
+          )
+      );
     }
   } catch (error) {
     console.log(error);
